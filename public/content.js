@@ -7,7 +7,7 @@ const scrapePage = () => ({
 })
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.method == 'scrapePage') {
+    if (request.method == 'scrapeData') {
       sendResponse(scrapePage())
     }
   }

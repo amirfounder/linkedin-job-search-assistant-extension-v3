@@ -33,14 +33,23 @@ Amir`
 const POST_CONNECTION_MESSAGE_SWE = '\
 Hello, {fname}'
 
-export default Object.freeze({
-  RECRUITER_CONNECTION_REQUEST_MESSAGE_TEMPLATE,
-  RECRUITER_POST_CONNECTION_MESSAGE_TEMPLATE,
-  INIT_CONNECTION_MESSAGE_SWE,
-  POST_CONNECTION_MESSAGE_SWE,
-  MY_FNAME: 'Amir',
-  MY_NAME: 'Amir Sharapov',
-  MY_POSITION: 'Software Engineer',
-  MY_TEL: `331.255.6927`,
-  MY_EMAIL: 'amirfounder18@gmail.com',
+export const MessageTemplates = Object.freeze({
+  RecruiterConnectionRequest: RECRUITER_CONNECTION_REQUEST_MESSAGE_TEMPLATE,
+  RecruiterPostConnection: RECRUITER_POST_CONNECTION_MESSAGE_TEMPLATE,
+  SoftwareEngineerConnectionRequest: INIT_CONNECTION_MESSAGE_SWE,
+  SoftwareEngineerPostConnection: POST_CONNECTION_MESSAGE_SWE
+})
+
+export const Position = Object.freeze({
+  Recruiter: 'Recruiter',
+  SoftwareEngineer: 'Software Engineer'
+})
+
+export const MyInformation = Object.freeze({
+  FullName: 'Amir',
+  FirstName: 'Amir',
+  LastName: 'Sharapov',
+  Position: 'Software Engineer',
+  Telephone: '(331) 255 - 6927',
+  Email: 'amirfounder18@gmail.com'
 })
