@@ -1,14 +1,23 @@
 const RECRUITER_CONNECTION_REQUEST_MESSAGE_TEMPLATE = `\
 Hello, {fname}!
 
-My name is {my_fname} and I'm currently a {my_position}.
-I saw your profile and wanted to reach out and introduce myself.
+My name is {my_fname} and I'm a {my_position}. \
+I noticed you're a technical recruiter working at {company}. \
 If you have time, I would love the opportunity to discuss how my \
-skills and experience align with any open roles {company} is looking to fill.
+skills and experience align with any open roles you're looking to fill.
 
-Best,
+Best!
 {my_fname}`
 const RECRUITER_POST_CONNECTION_MESSAGE_TEMPLATE = `\
+Hi {fname}, thanks for connecting with me! I appreciate it.
+
+When you get a chance, could you tell me a little more about what {company} is looking for in terms of software engineering talent, \
+and if my qualifications match? Thank you!
+
+Amir
+(331) 255 - 6927
+amirfounder18@gmail.com`
+const RECRUITER_POST_CONNECTION_MESSAGE_TEMPLATE_TWO = `\
 Hi {fname}, thank you for accepting my connection request!
 
 Please find my updated resume attached to this message.
@@ -23,15 +32,15 @@ Email: {my_email}`
 const INIT_CONNECTION_MESSAGE_SWE = `\
 Hello, {fname}!
 
-My name is {my_fname} and I'm currently a {my_position}.
-I saw your profile and wanted to reach out and introduce myself.
-If you have time, I would love the opportunity to learn more about your \
-day to day experience as a {headline} at {company}.
+My name is {my_fname} and I'm currently a {my_position}. \
+I noticed you're in the tech industry as well and I'm trying to connect with more likeminded folks. \
+If you have time, I would love the opportunity to get to know a little more about \
+what it's like working in the industry.
 
 Best,\
 Amir`
-const POST_CONNECTION_MESSAGE_SWE = '\
-Hello, {fname}'
+const POST_CONNECTION_MESSAGE_SWE = `\
+Hello, {fname}`
 
 export const MessageTemplates = Object.freeze({
   RecruiterConnectionRequest: RECRUITER_CONNECTION_REQUEST_MESSAGE_TEMPLATE,

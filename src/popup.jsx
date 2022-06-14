@@ -9,6 +9,7 @@ import { camelToHuman } from "./utils"
 
 
 const Popup = () => {
+  const [appData, setAppData] = useState({})
   const [profileData, setProfileData] = useState({})
   const [touchpointsData, setTouchPointsData] = useState({})
   const [message, setMessage] = useState('')
@@ -21,6 +22,7 @@ const Popup = () => {
       const [tab] = await getCurrentTab()
       const tempProfileData = await sendMessageToTab(tab.id, {method: 'scrapeData'})
       setProfileData(tempProfileData)
+      setAppData({contentScriptUrl: tempProfileData?.linkedin_url})
       const recruiterExists = await getRecruiterExists(tempProfileData.username).then(r => r.json())
       if (recruiterExists) {
         const touchpoints = await getTouchpointsData(tempProfileData.username).then(r => r.json())
@@ -87,67 +89,71 @@ const Popup = () => {
 
   return (
     <div style={{
-      padding: '20px',
-      display: 'grid',
-      gridTemplateColumns: '2fr 3fr',
-      width: '640px'
+      width: '740px',
+      padding: '20px'
     }}>
-      <div>
-        <h3 style={{ marginBlockStart: '0px', marginBlockEnd: '10px' }}>Touchpoints</h3>
-        <div style={{ paddingBottom: '15px' }}>
-          {Object.entries(touchpointsData).map(([key, value]) => (
-            <Checkbox
-              label={camelToHuman(key)}
-              id={key}
-              value={value?.value}
-              onChange={onTouchpointsCheckboxClick}
-            />
-          ))}
-        </div>
-        <button onClick={onUpdateChangesButtonClick}>Update Touchpoints</button>
+      Current URL: {appData?.contentScriptUrl}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: '2fr 3fr',
+      }}>
         <div>
-          <h3>Queued Companies</h3>
-          <div>
-            {nextCompanies.map((company) => (
-              <div style={{paddingBottom: '5px'}}>
-                <button style={{padding: '2px'}} onClick={async (e) => {
-                  const [tab] = await getCurrentTab()
-                  sendMessageToTab(tab.id, {
-                    method: 'navigateToURL',
-                    url: `https://www.linkedin.com/search/results/all/?keywords=${e.target.innerText.toLowerCase().replaceAll(' ', '%20')}%20technical%20recruiter`
-                  })
-                }}>
-                  {company.name}
-                </button>
-              </div>
+          <h3 style={{ marginBlockStart: '0px', marginBlockEnd: '10px' }}>Touchpoints</h3>
+          <div style={{ paddingBottom: '15px' }}>
+            {Object.entries(touchpointsData).map(([key, value]) => (
+              <Checkbox
+                label={camelToHuman(key)}
+                id={key}
+                value={value?.value}
+                onChange={onTouchpointsCheckboxClick}
+              />
             ))}
           </div>
-          <button></button>
-        </div>
-      </div>
-      <div>
-        <h3 style={{ marginBlockStart: '0px', marginBlockEnd: '10px' }}>Profile</h3>
-        <div style={{ display: 'grid', rowGap: '5px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '10px' }}>
-            <TextInput label='Name' id='name' value={profileData?.name} onChange={onProfileInputChange} />
-            <TextInput label='Company' id='company' value={profileData?.company} onChange={onProfileInputChange} />
+          <button onClick={onUpdateChangesButtonClick}>Update Touchpoints</button>
+          <div>
+            <h3>Queued Companies</h3>
+            <div>
+              {nextCompanies.map((company) => (
+                <div style={{paddingBottom: '5px'}}>
+                  <button style={{padding: '2px'}} onClick={async (e) => {
+                    const [tab] = await getCurrentTab()
+                    sendMessageToTab(tab.id, {
+                      method: 'navigateToURL',
+                      url: `https://www.linkedin.com/search/results/all/?keywords=${e.target.innerText.toLowerCase().replaceAll(' ', '%20')}%20technical%20recruiter`
+                    })
+                  }}>
+                    {company.name}
+                  </button>
+                </div>
+              ))}
+            </div>
+            <button></button>
           </div>
-          <TextInput label='Headline' id='headline' value={profileData?.headline} onChange={onProfileInputChange} />
-          <TextInput label='Potential Alias For...' id='alias_for' value={potentialAliasFor} disabled />
-          <Checkbox label='Company is Alias' id='companyIsAlias' value={companyIsAlias} onChange={(e) => setCompanyIsAlias(!!e.target.checked)} />
-          <label>Message
-            <textarea rows='10' value={message} onChange={(e) => setMessage(e.target.value)} style={{ fontFamily: 'inherit', width: 'calc(100% - 8px)', fontSize: '11px', padding: '3px', resize: 'vertical' }} /></label>
-          <button onClick={() => putRecruiterProfile(profileData.username, profileData)}>Update Profile</button>
         </div>
         <div>
-          <h3 style={{ marginBlockStart: '10px', marginBlockEnd: '10px' }}>Generate & Copy Messages</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', rowGap: '5px', columnGap: '5px', paddingBottom: '10px' }}>
-            <button onClick={() => loadMessage(MessageTemplates.RecruiterConnectionRequest)} style={{fontSize: '12px'}}>First Connection - RECR</button>
-            <button onClick={() => loadMessage(MessageTemplates.RecruiterPostConnection)} style={{fontSize: '12px'}}>Post Connection - RECR</button>
-            <button onClick={() => loadMessage(MessageTemplates.SoftwareEngineerConnectionRequest)} style={{fontSize: '12px'}}>First Connection - SFWE</button>
-            <button onClick={() => loadMessage(MessageTemplates.SoftwareEngineerPostConnection)} style={{fontSize: '12px'}}>Post Connection - SFWE</button>
+          <h3 style={{ marginBlockStart: '0px', marginBlockEnd: '10px' }}>Profile</h3>
+          <div style={{ display: 'grid', rowGap: '5px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '10px' }}>
+              <TextInput label='Name' id='name' value={profileData?.name} onChange={onProfileInputChange} />
+              <TextInput label='Company' id='company' value={profileData?.company} onChange={onProfileInputChange} />
+            </div>
+            <TextInput label='Headline' id='headline' value={profileData?.headline} onChange={onProfileInputChange} />
+            <Checkbox label='Company is Alias' id='companyIsAlias' value={companyIsAlias} onChange={(e) => setCompanyIsAlias(!!e.target.checked)} />
+            {companyIsAlias && <TextInput label='Potential Alias For...' id='alias_for' value={potentialAliasFor} />}
+            <label>Message
+              <textarea rows='10' value={message} onChange={(e) => setMessage(e.target.value)} style={{ fontFamily: 'inherit', width: 'calc(100% - 8px)', fontSize: '11px', padding: '3px', resize: 'vertical' }} /></label>
+            <button onClick={() => putRecruiterProfile(profileData.username, profileData)}>Update Profile</button>
           </div>
-          <button onClick={init}>Reload Popup Synthetically</button>
+          <div>
+            <h3 style={{ marginBlockStart: '10px', marginBlockEnd: '10px' }}>Generate & Copy Messages</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', rowGap: '5px', columnGap: '5px', paddingBottom: '10px' }}>
+              <button onClick={() => loadMessage(MessageTemplates.RecruiterConnectionRequest)} style={{fontSize: '12px'}}>First Connection - RECR</button>
+              <button onClick={() => loadMessage(MessageTemplates.RecruiterPostConnection)} style={{fontSize: '12px'}}>Post Connection - RECR</button>
+              <button onClick={() => loadMessage(MessageTemplates.SoftwareEngineerConnectionRequest)} style={{fontSize: '12px'}}>First Connection - SFWE</button>
+              <button onClick={() => loadMessage(MessageTemplates.SoftwareEngineerPostConnection)} style={{fontSize: '12px'}}>Post Connection - SFWE</button>
+            </div>
+            <button onClick={init}>Reload Popup Synthetically</button>
+          </div>
         </div>
       </div>
     </div>
