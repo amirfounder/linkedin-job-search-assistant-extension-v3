@@ -14,6 +14,8 @@ export const getTouchpointsData = async (username) => sendHttpRequest('GET', `/r
 
 export const putTouchpointsData = async (username, touchpoints) => sendHttpRequest('PUT', `/recruiters/${username}/touchpoints`, touchpoints)
 
+export const putRecruiterProfile = async (username, profile) => sendHttpRequest('PUT', `/recruiters/${username}/profile`, profile)
+
 export const getRecruiterExists = async (username) => sendHttpRequest('GET', `/recruiters/${username}/exists`)
 
 export const postRecruiter = async (recruiter) => sendHttpRequest('POST', `/recruiters`, recruiter)

@@ -25,7 +25,7 @@ Hello, {fname}!
 
 My name is {my_fname} and I'm currently a {my_position}.
 I saw your profile and wanted to reach out and introduce myself.
-If you have time, I would love the opportuntity to learn more about your \
+If you have time, I would love the opportunity to learn more about your \
 day to day experience as a {headline} at {company}.
 
 Best,\

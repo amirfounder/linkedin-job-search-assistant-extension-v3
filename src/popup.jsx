@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react"
-import { copy, formatTemplate, getCurrentTab, sendMessageToTab } from "./popupService"
+import { copy, formatTemplate, getCurrentTab, sendMessageToTab, similarity } from "./popupService"
 import { render } from "react-dom"
 import { MessageTemplates } from "./popupConstants"
-import { getRecruiterExists, getTouchpointsData, postRecruiter, putTouchpointsData, getTouchpointsSchemaResource, getNextCompanies } from "./popupHttpServices"
+import { getRecruiterExists, getTouchpointsData, postRecruiter, putTouchpointsData, getTouchpointsSchemaResource, getNextCompanies, putRecruiterProfile } from "./popupHttpServices"
 import { TextInput } from "./Input.jsx"
 import { Checkbox } from "./Checkbox.jsx"
 import { camelToHuman } from "./utils"
@@ -13,6 +13,8 @@ const Popup = () => {
   const [touchpointsData, setTouchPointsData] = useState({})
   const [message, setMessage] = useState('')
   const [nextCompanies, setNextCompanies] = useState([])
+  const [potentialAliasFor, setPotentialAliasFor] = useState('')
+  const [companyIsAlias, setCompanyIsAlias] = useState(false)
 
   const init = async () => {
     try {
@@ -34,10 +36,28 @@ const Popup = () => {
       }
       const tempNextCompanies = await getNextCompanies().then(r => r.json())
       setNextCompanies(tempNextCompanies)
-
+      setPotentialAliasFor(mostSimilarWord(tempProfileData.company, tempNextCompanies.map(x => x.name)))
     } catch (err) {
       console.log(err)
     }
+  }
+
+  const mostSimilarWord = (target, words=[], validateOnIncludes=true) => {
+    let [bestWord, bestScore] = [null, -1]
+    const lTarget = target.toLowerCase()
+    for (const word of words) {
+      const lWord = word.toLowerCase()
+      if (
+        validateOnIncludes && (lWord.includes(lTarget) || lTarget.includes(lWord))) {
+        return word
+      }
+      const score = similarity(lWord, lTarget)
+      if (score > bestScore) {
+        bestScore = score
+        bestWord = word
+      }
+    }
+    return bestWord
   }
 
   const loadMessage = async (template) => {
@@ -60,6 +80,7 @@ const Popup = () => {
     await putTouchpointsData(profileData.username, touchpointsData)
     const tempNextCompanies = await getNextCompanies().then(r => r.json())
     setNextCompanies(tempNextCompanies)
+    setPotentialAliasFor(mostSimilarWord(profileData.company, tempNextCompanies.map(x => x.name)))
   }
 
   useEffect(() => { init() }, [])
@@ -86,16 +107,22 @@ const Popup = () => {
         <button onClick={onUpdateChangesButtonClick}>Update Touchpoints</button>
         <div>
           <h3>Queued Companies</h3>
-          {nextCompanies.map((company) => (
-            <button style={{padding: '2px'}} onClick={async (e) => {
-              const [tab] = await getCurrentTab()
-              sendMessageToTab(tab.id, {
-                method: 'navigateToURL',
-                url: `https://www.linkedin.com/search/results/all/?keywords=${e.target.innerText.toLowerCase().replaceAll(' ', '%20')}%20technical%20recruiter`
-              })
-            }}
-              >{company.name}</button>
-          ))}
+          <div>
+            {nextCompanies.map((company) => (
+              <div style={{paddingBottom: '5px'}}>
+                <button style={{padding: '2px'}} onClick={async (e) => {
+                  const [tab] = await getCurrentTab()
+                  sendMessageToTab(tab.id, {
+                    method: 'navigateToURL',
+                    url: `https://www.linkedin.com/search/results/all/?keywords=${e.target.innerText.toLowerCase().replaceAll(' ', '%20')}%20technical%20recruiter`
+                  })
+                }}>
+                  {company.name}
+                </button>
+              </div>
+            ))}
+          </div>
+          <button></button>
         </div>
       </div>
       <div>
@@ -106,8 +133,11 @@ const Popup = () => {
             <TextInput label='Company' id='company' value={profileData?.company} onChange={onProfileInputChange} />
           </div>
           <TextInput label='Headline' id='headline' value={profileData?.headline} onChange={onProfileInputChange} />
+          <TextInput label='Potential Alias For...' id='alias_for' value={potentialAliasFor} disabled />
+          <Checkbox label='Company is Alias' id='companyIsAlias' value={companyIsAlias} onChange={(e) => setCompanyIsAlias(!!e.target.checked)} />
           <label>Message
             <textarea rows='10' value={message} onChange={(e) => setMessage(e.target.value)} style={{ fontFamily: 'inherit', width: 'calc(100% - 8px)', fontSize: '11px', padding: '3px', resize: 'vertical' }} /></label>
+          <button onClick={() => putRecruiterProfile(profileData.username, profileData)}>Update Profile</button>
         </div>
         <div>
           <h3 style={{ marginBlockStart: '10px', marginBlockEnd: '10px' }}>Generate & Copy Messages</h3>
@@ -117,7 +147,7 @@ const Popup = () => {
             <button onClick={() => loadMessage(MessageTemplates.SoftwareEngineerConnectionRequest)} style={{fontSize: '12px'}}>First Connection - SFWE</button>
             <button onClick={() => loadMessage(MessageTemplates.SoftwareEngineerPostConnection)} style={{fontSize: '12px'}}>Post Connection - SFWE</button>
           </div>
-          <button onClick={init}>Load Page Content</button>
+          <button onClick={init}>Reload Popup Synthetically</button>
         </div>
       </div>
     </div>

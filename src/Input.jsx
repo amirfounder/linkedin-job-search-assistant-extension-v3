@@ -4,12 +4,14 @@ export const TextInput = ({
   value,
   id,
   onChange,
-  label
+  label,
+  ...props
 }) => {
   return (
     <label>
       {label}
       <input
+        {...props}
         type='text'
         id={id}
         value={value}
