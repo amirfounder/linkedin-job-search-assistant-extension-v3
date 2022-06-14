@@ -1,4 +1,5 @@
 const sendHttpRequest = async (method, route, body) => {
+  console.log('BODY: ', body)
   return fetch('http://localhost:8082' + route, {
     method,
     headers: {
@@ -16,3 +17,7 @@ export const putTouchpointsData = async (username, touchpoints) => sendHttpReque
 export const getRecruiterExists = async (username) => sendHttpRequest('GET', `/recruiters/${username}/exists`)
 
 export const postRecruiter = async (recruiter) => sendHttpRequest('POST', `/recruiters`, recruiter)
+
+export const getTouchpointsSchemaResource = async () => sendHttpRequest('GET', '/resources/touchpoints/schema')
+
+export const getNextCompanies = async () => sendHttpRequest('GET', `/companies/next`)
